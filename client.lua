@@ -27,8 +27,6 @@ Citizen.CreateThread(function()
 							local driverOfVehicle = GetDriverOfVehicle(vehicle)
 							local driverServer = GetPlayerServerId(driverOfVehicle)
 
-							print(driverOfVehicle)
-
 							if driverServer == 0 then
 								SetVehicleTyreBurst(vehicle, closestTire.tireIndex, 0, 100.0)
 							else
