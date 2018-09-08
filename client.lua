@@ -23,7 +23,17 @@ Citizen.CreateThread(function()
 							local animDuration = GetAnimDuration(animDict, animName)
 							TaskPlayAnim(plyPed, animDict, animName, 8.0, -8.0, animDuration, 15, 1.0, 0, 0, 0)
 							Citizen.Wait((animDuration / 2) * 1000)
-							SetVehicleTyreBurst(vehicle, closestTire.tireIndex, 0, 100.0)
+
+							local driverOfVehicle = GetDriverOfVehicle(vehicle)
+							local driverServer = GetPlayerServerId(driverOfVehicle)
+
+							print(driverOfVehicle)
+
+							if driverServer == 0 then
+								SetVehicleTyreBurst(vehicle, closestTire.tireIndex, 0, 100.0)
+							else
+								TriggerServerEvent("SlashTires:TargetClient", driverServer, closestTire.tireIndex)
+							end
 							Citizen.Wait((animDuration / 2) * 1000)
 							ClearPedTasksImmediately(plyPed)
 						end
@@ -34,6 +44,25 @@ Citizen.CreateThread(function()
 		Citizen.Wait(0)
 	end
 end)
+
+RegisterNetEvent("SlashTires:SlashClientTire")
+AddEventHandler("SlashTires:SlashClientTire", function(tireIndex)
+	TriggerEvent("chatMessage", "^1A player is trying to slash your tire")
+	local player = PlayerId()
+	local plyPed = GetPlayerPed(player)
+	local vehicle = GetVehiclePedIsIn(plyPed, false)
+	SetVehicleTyreBurst(vehicle, tireIndex, 0, 100.0)
+end)
+
+function GetDriverOfVehicle(vehicle)
+	local dPed = GetPedInVehicleSeat(vehicle, -1)
+	for a = 0, 32 do
+		if dPed == GetPlayerPed(a) then
+			return a
+		end
+	end
+	return -1
+end
 
 function CanUseWeapon(allowedWeapons)
 	local player = PlayerId()
